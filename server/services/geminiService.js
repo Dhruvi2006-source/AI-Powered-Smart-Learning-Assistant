@@ -11,8 +11,8 @@ function getGenAI() {
   return new GoogleGenAI({ apiKey });
 }
 
-// Model identifier to use
-const MODEL_NAME = 'gemini-2.5-flash';
+// Current supported Gemini model identifier
+const MODEL_NAME = 'gemini-3.6-flash';
 
 /**
  * Feature 1: Summarize Notes
