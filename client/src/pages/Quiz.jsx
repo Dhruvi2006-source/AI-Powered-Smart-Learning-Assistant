@@ -3,6 +3,7 @@ import { HelpCircle, Sparkles, AlertCircle, RefreshCw, Trophy, RotateCcw, FileTe
 import LoadingState from '../components/LoadingState';
 import QuizQuestion from '../components/QuizQuestion';
 import { SAMPLE_STUDY_NOTES, MOCK_QUIZ_QUESTIONS } from '../data/mockData';
+import { generateQuiz as apiGenerateQuiz } from '../services/api';
 
 export default function Quiz() {
   const [notes, setNotes] = useState('');
@@ -23,7 +24,7 @@ export default function Quiz() {
     setShowResults(false);
   };
 
-  const handleGenerateQuiz = () => {
+  const handleGenerateQuiz = async () => {
     if (!notes.trim()) {
       setError('Please enter some study material first.');
       setGeneratedQuiz(null);
@@ -36,12 +37,22 @@ export default function Quiz() {
     setShowResults(false);
     setUserAnswers({});
 
-    setTimeout(() => {
+    try {
+      const data = await apiGenerateQuiz(notes.trim(), numQuestions, difficulty);
+      setGeneratedQuiz(data.questions);
+    } catch (err) {
+      console.warn('API call failed for Quiz Generator:', err.message);
+
+      if (err.message.includes('GEMINI_API_KEY')) {
+        setError('Backend GEMINI_API_KEY is not configured in server/.env. Displaying mock quiz preview.');
+        const count = parseInt(numQuestions, 10) || 3;
+        setGeneratedQuiz(MOCK_QUIZ_QUESTIONS.slice(0, count));
+      } else {
+        setError(err.message || 'Failed to generate quiz. Please check server connection.');
+      }
+    } finally {
       setLoading(false);
-      const count = parseInt(numQuestions, 10) || 3;
-      const questionsToUse = MOCK_QUIZ_QUESTIONS.slice(0, count);
-      setGeneratedQuiz(questionsToUse);
-    }, 1400);
+    }
   };
 
   const handleOptionSelect = (questionId, optionIndex) => {
@@ -182,7 +193,7 @@ export default function Quiz() {
       </div>
 
       {/* Loading state */}
-      {loading && <LoadingState message="Extracting key concepts & generating MCQs..." />}
+      {loading && <LoadingState message="Extracting key concepts & generating MCQs with Gemini AI..." />}
 
       {/* Generated Quiz Container */}
       {generatedQuiz && !loading && (
@@ -217,11 +228,11 @@ export default function Quiz() {
           <div className="space-y-4">
             {generatedQuiz.map((q, idx) => (
               <QuizQuestion
-                key={q.id}
+                key={q.id || idx}
                 question={q}
                 questionNumber={idx + 1}
-                selectedOption={userAnswers[q.id]}
-                onSelectOption={(optionIndex) => handleOptionSelect(q.id, optionIndex)}
+                selectedOption={userAnswers[q.id || idx]}
+                onSelectOption={(optionIndex) => handleOptionSelect(q.id || idx, optionIndex)}
                 showResults={showResults}
               />
             ))}

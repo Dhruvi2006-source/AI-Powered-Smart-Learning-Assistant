@@ -3,6 +3,7 @@ import { MessageSquareText, Sparkles, AlertCircle, RefreshCw, HelpCircle, FileTe
 import LoadingState from '../components/LoadingState';
 import AIResponseCard from '../components/AIResponseCard';
 import { SAMPLE_STUDY_NOTES, MOCK_QA_RESPONSES, DEFAULT_QA_RESPONSE } from '../data/mockData';
+import { askQuestion as apiAskQuestion } from '../services/api';
 
 export default function AskAI() {
   const [notes, setNotes] = useState('');
@@ -10,6 +11,7 @@ export default function AskAI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [response, setResponse] = useState(null);
+  const [isMockResult, setIsMockResult] = useState(false);
 
   const handleLoadSample = () => {
     setNotes(SAMPLE_STUDY_NOTES);
@@ -18,7 +20,7 @@ export default function AskAI() {
     setResponse(null);
   };
 
-  const handleAskAI = () => {
+  const handleAskAI = async () => {
     if (!notes.trim()) {
       setError('Please enter your study material notes first.');
       setResponse(null);
@@ -34,21 +36,35 @@ export default function AskAI() {
     setError('');
     setLoading(true);
     setResponse(null);
+    setIsMockResult(false);
 
-    setTimeout(() => {
-      setLoading(false);
-
-      // Find best matching mock response based on question keywords
-      const qLower = question.toLowerCase();
-      const match = MOCK_QA_RESPONSES.find(m => 
-        m.keywords.some(kw => qLower.includes(kw))
-      );
-
+    try {
+      const data = await apiAskQuestion(notes.trim(), question.trim());
       setResponse({
         question: question,
-        answer: match ? match.answer : DEFAULT_QA_RESPONSE
+        answer: data.answer
       });
-    }, 1200);
+    } catch (err) {
+      console.warn('API call failed for Ask AI:', err.message);
+
+      if (err.message.includes('GEMINI_API_KEY')) {
+        setError('Backend GEMINI_API_KEY is not configured in server/.env. Displaying mock answer preview.');
+        
+        const qLower = question.toLowerCase();
+        const match = MOCK_QA_RESPONSES.find(m => 
+          m.keywords.some(kw => qLower.includes(kw))
+        );
+        setResponse({
+          question: question,
+          answer: match ? match.answer : DEFAULT_QA_RESPONSE
+        });
+        setIsMockResult(true);
+      } else {
+        setError(err.message || 'Failed to process question. Please check server connection.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -152,7 +168,7 @@ export default function AskAI() {
       </div>
 
       {/* Loading state */}
-      {loading && <LoadingState message="Processing question against study notes..." />}
+      {loading && <LoadingState message="Processing question with Gemini AI..." />}
 
       {/* AI Response Card */}
       {response && !loading && (
@@ -163,7 +179,7 @@ export default function AskAI() {
           <AIResponseCard
             title="AI Answer & Explanation"
             rawText={response.answer}
-            isMock={true}
+            isMock={isMockResult}
           />
         </div>
       )}

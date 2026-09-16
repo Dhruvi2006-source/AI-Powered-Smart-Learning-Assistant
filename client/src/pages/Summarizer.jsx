@@ -3,12 +3,14 @@ import { BookOpen, Sparkles, AlertCircle, RefreshCw, FileText } from 'lucide-rea
 import LoadingState from '../components/LoadingState';
 import AIResponseCard from '../components/AIResponseCard';
 import { SAMPLE_STUDY_NOTES, MOCK_SUMMARY_RESPONSE } from '../data/mockData';
+import { summarizeNotes as apiSummarizeNotes } from '../services/api';
 
 export default function Summarizer() {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const [isMockResult, setIsMockResult] = useState(false);
 
   const MAX_CHARS = 5000;
 
@@ -26,7 +28,7 @@ export default function Summarizer() {
     setResult(null);
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!notes.trim()) {
       setError('Please enter some study material first.');
       setResult(null);
@@ -36,12 +38,28 @@ export default function Summarizer() {
     setError('');
     setLoading(true);
     setResult(null);
+    setIsMockResult(false);
 
-    // Simulate AI processing delay
-    setTimeout(() => {
+    try {
+      const data = await apiSummarizeNotes(notes.trim());
+      setResult({
+        summary: data.summary,
+        keyPoints: data.keyPoints
+      });
+    } catch (err) {
+      console.warn('API call failed, falling back to mock preview if API key unconfigured:', err.message);
+      
+      // If API key is missing on backend, notify user or fallback gracefully
+      if (err.message.includes('GEMINI_API_KEY')) {
+        setError('Backend GEMINI_API_KEY is not configured yet in server/.env. Displaying mock summary.');
+        setResult(MOCK_SUMMARY_RESPONSE);
+        setIsMockResult(true);
+      } else {
+        setError(err.message || 'Failed to generate summary. Please check your network or server connection.');
+      }
+    } finally {
       setLoading(false);
-      setResult(MOCK_SUMMARY_RESPONSE);
-    }, 1200);
+    }
   };
 
   const handleClear = () => {
@@ -140,7 +158,7 @@ export default function Summarizer() {
       </div>
 
       {/* Loading State */}
-      {loading && <LoadingState message="Analyzing notes & generating concise summary..." />}
+      {loading && <LoadingState message="Connecting to Gemini API & summarizing notes..." />}
 
       {/* Results Output Card */}
       {result && !loading && (
@@ -148,7 +166,7 @@ export default function Summarizer() {
           title="Notes Summary & Key Takeaways"
           summary={result.summary}
           keyPoints={result.keyPoints}
-          isMock={true}
+          isMock={isMockResult}
         />
       )}
     </div>
