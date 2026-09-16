@@ -1,35 +1,56 @@
-# GenAI-Powered Smart Learning Assistant (`SmartLearn`)
+# 🎓 GenAI-Powered Smart Learning Assistant (`SmartLearn`)
 
-An academic Generative AI web application built for B.Tech Computer Engineering SAP submission.
+An intelligent, student-friendly web application designed to help engineering students understand study materials, ask context-bound clarifying questions, and practice with AI-generated multiple-choice quizzes.
 
-`SmartLearn` helps students understand study materials, ask clarifying questions based strictly on their lecture notes, and practice with AI-generated multiple-choice quizzes.
+> **Academic Project**: 3rd Year B.Tech Computer Engineering (SAP Academic Submission)  
+> **Author**: [Dhruvi Patel](https://dhruvi-dev.vercel.app/)  
+> **Portfolio**: [dhruvi-dev.vercel.app](https://dhruvi-dev.vercel.app/)
 
 ---
 
-## 🚀 Technology Stack
+## 🌟 Key Features
+
+1. **📝 AI Notes Summarizer**:
+   - Paste lengthy lecture notes or textbook chapters.
+   - Generates a concise summary and 4–6 structured bullet points for quick exam revision.
+   - Built-in live character counter (`0 / 5000`) and one-click **Copy Summary** functionality.
+
+2. **❓ Ask AI (Context-Bound Q&A Tutor)**:
+   - Ask questions about your study notes.
+   - Instructs Gemini to answer strictly using the provided study material as primary context.
+   - If the answer is not present in the notes, Gemini clearly notifies the student instead of hallucinating.
+
+3. **🎯 AI Quiz Generator**:
+   - Automatically extracts core concepts to create multiple-choice practice questions (MCQs).
+   - Configurable question count (3, 5, 10) and difficulty level (Easy, Medium, Hard).
+   - Interactive options selection, automated score evaluation (`Score: X / Y`), correct/incorrect highlighting, and detailed answer explanations.
+
+---
+
+## 🛠️ Technology Stack
 
 ### Frontend (`/client`)
-- **Framework**: React 18 / 19 with Vite
+- **Framework**: React 18 / 19 + Vite
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`)
 - **Icons**: Lucide React (`lucide-react`)
-- **Language**: JavaScript (ES6+)
+- **Language**: JavaScript (ES6+ / JSX)
 
 ### Backend (`/server`)
 - **Runtime**: Node.js (ES Modules)
 - **Framework**: Express.js
-- **AI SDK**: Official Google GenAI JavaScript SDK (`@google/genai`)
-- **Model**: Google Gemini (`gemini-2.5-flash`)
-- **Middleware**: CORS, Express JSON, Dotenv
+- **Generative AI SDK**: Official `@google/genai` JavaScript SDK
+- **AI Model**: Google Gemini (`gemini-3.6-flash`)
+- **Middleware**: CORS, Express JSON Parser, Dotenv
 
 ---
 
-## 📁 Project Structure
+## 📂 Repository Directory Structure
 
 ```text
 SAP/
-├── .env.example                  # Root placeholder environment variables
+├── .env.example                  # Root placeholder environment template
 ├── .gitignore                    # Git ignore file for node_modules, build & env files
-├── README.md                     # Comprehensive project documentation
+├── README.md                     # Complete project guide & setup documentation
 │
 ├── client/                       # React + Vite Frontend Application
 │   ├── package.json
@@ -37,12 +58,14 @@ SAP/
 │   ├── index.html
 │   └── src/
 │       ├── main.jsx
-│       ├── App.jsx               # Application main layout & tab router
-│       ├── index.css             # Tailwind v4 setup & custom styling
+│       ├── App.jsx               # Main application layout, tab router & footer
+│       ├── index.css             # Tailwind v4 setup & typography
+│       ├── config/
+│       │   └── apiConfig.js      # Centralized API Base URL configuration
 │       ├── data/
 │       │   └── mockData.js       # Fallback mock study notes and sample Q&A
 │       ├── services/
-│       │   └── api.js            # Centralized API fetch helper for backend endpoints
+│       │   └── api.js            # Fetch helper communicating with Express backend
 │       ├── components/
 │       │   ├── Navbar.jsx        # Navigation bar & mobile drawer menu
 │       │   ├── FeatureCard.jsx   # Dashboard feature cards
@@ -68,136 +91,129 @@ SAP/
 
 ---
 
-## ⚙️ Environment Setup & API Key Configuration
+## 📋 Prerequisites
 
-1. Get your free Google Gemini API key from [Google AI Studio](https://aistudio.google.com/).
-2. Create a `.env` file inside the `server/` directory:
+Before running the project, ensure you have the following installed on your machine:
 
-```env
-PORT=5000
-GEMINI_API_KEY=your_actual_gemini_api_key_here
-```
-
-> ⚠️ **Security Note**: Never expose or commit your `GEMINI_API_KEY` to the browser or Git. It must remain exclusively in `server/.env`.
+- **Node.js**: `v18.0.0` or higher (Verify with `node -v`)
+- **npm**: `v9.0.0` or higher (Verify with `npm -v`)
+- **Google Gemini API Key**: Free key from [Google AI Studio](https://aistudio.google.com/)
 
 ---
 
-## 💻 How to Run the Application
+## ⚡ Step-by-Step Installation & Setup Guide
 
-### 1. Start the Backend Server (`server/`)
+### Step 1: Clone or Download the Repository
 
-Open a terminal window and run:
+```bash
+git clone https://github.com/Dhruvi2006/AI-Powered-Smart-Learning-Assistant.git
+cd AI-Powered-Smart-Learning-Assistant
+```
 
-```powershell
-cd server
+---
+
+### Step 2: Configure Backend Environment Variables
+
+1. Navigate to the `server/` directory:
+   ```bash
+   cd server
+   ```
+2. Install server dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file inside the `server/` directory:
+   ```bash
+   # On Windows PowerShell:
+   New-Item -ItemType File -Name .env
+
+   # On Mac/Linux:
+   touch .env
+   ```
+4. Open `server/.env` and add your Gemini API Key:
+   ```env
+   PORT=5000
+   GEMINI_API_KEY=your_actual_gemini_api_key_here
+   ```
+   *(Replace `your_actual_gemini_api_key_here` with your key from [Google AI Studio](https://aistudio.google.com/)).*
+
+---
+
+### Step 3: Install Frontend Dependencies
+
+Open a new terminal window, navigate to the `client/` directory, and install dependencies:
+
+```bash
+cd client
 npm install
+```
+
+---
+
+## 🚀 Running the Application
+
+To run the application locally, you need to start **both** the backend server and the frontend client simultaneously.
+
+### 1. Start the Backend Express Server
+
+In your first terminal (inside `server/`):
+
+```bash
 npm start
 ```
 
-The Express server will start at `http://localhost:5000`.
+- Server will start at: **`http://localhost:5000`**
+- Health Check: **`http://localhost:5000/api/health`**
 
-### 2. Start the Frontend Client (`client/`)
+---
 
-Open a second terminal window and run:
+### 2. Start the Frontend React App
 
-```powershell
-cd client
-npm install
+In your second terminal (inside `client/`):
+
+```bash
 npm run dev
 ```
 
-The React frontend will launch at `http://localhost:5173`.
+- Client will launch at: **`http://localhost:5173`**
+
+Open `http://localhost:5173` in your web browser to use the application!
 
 ---
 
-## 📡 Available API Endpoints
+## 📡 API Endpoints Reference
 
-### 1. Health Check
-- **Endpoint**: `GET /api/health`
-- **Response**:
-```json
-{
-  "success": true,
-  "message": "SmartLearn GenAI API is running smoothly"
-}
-```
-
-### 2. AI Notes Summarizer
-- **Endpoint**: `POST /api/summarize`
-- **Request Body**:
-```json
-{
-  "notes": "Generative Artificial Intelligence (GenAI) is a category of artificial intelligence..."
-}
-```
-- **Response**:
-```json
-{
-  "success": true,
-  "summary": "Generative AI uses neural networks to create text, code, and media...",
-  "keyPoints": [
-    "Uses Transformer models with self-attention.",
-    "Differs from conventional ML classification.",
-    "Prompt engineering directly guides model responses."
-  ]
-}
-```
-
-### 3. Ask AI
-- **Endpoint**: `POST /api/ask`
-- **Request Body**:
-```json
-{
-  "notes": "Generative AI uses Transformer models trained on vast text corpora...",
-  "question": "What architecture does GenAI use?"
-}
-```
-- **Response**:
-```json
-{
-  "success": true,
-  "answer": "Generative AI uses Transformer architectures with self-attention mechanisms."
-}
-```
-
-### 4. AI Quiz Generator
-- **Endpoint**: `POST /api/quiz`
-- **Request Body**:
-```json
-{
-  "notes": "Generative AI creates new content using Large Language Models...",
-  "numberOfQuestions": 3,
-  "difficulty": "medium"
-}
-```
-- **Response**:
-```json
-{
-  "success": true,
-  "questions": [
-    {
-      "id": 1,
-      "question": "Which architecture is foundational for modern GenAI?",
-      "options": [
-        "Convolutional Neural Networks",
-        "Transformer Architecture",
-        "Recurrent Neural Networks",
-        "Decision Trees"
-      ],
-      "correctAnswer": 1,
-      "explanation": "Transformers use self-attention mechanisms to process text sequential data."
-    }
-  ]
-}
-```
+| Method | Endpoint | Description | Sample Payload |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/health` | Server Health Status | N/A |
+| `POST` | `/api/summarize` | Summarize study notes | `{ "notes": "Textbook content..." }` |
+| `POST` | `/api/ask` | Answer question from notes | `{ "notes": "...", "question": "..." }` |
+| `POST` | `/api/quiz` | Generate MCQs | `{ "notes": "...", "numberOfQuestions": 3, "difficulty": "medium" }` |
 
 ---
 
-## 🎓 Academic Explanation for SAP Demonstration
+## 💡 SAP Presentation & Demonstration Guide
 
-1. **Architecture**:
-   - The application follows a 3-tier decoupled architecture: **React Frontend** $\leftrightarrow$ **Express REST API** $\leftrightarrow$ **Google Gemini GenAI SDK**.
-2. **AI Prompts & Context Scoping**:
-   - For **Ask AI**, the prompt explicitly scopes Gemini's response to the supplied study material to prevent hallucinations and ungrounded statements.
-3. **Structured Response Schemas**:
-   - For **Quiz Generation** and **Summarization**, the backend enforces strict JSON schemas (`responseSchema`) using `@google/genai` to guarantee uniform arrays of questions and 4-option MCQs.
+If you are presenting this project for your academic evaluation:
+
+1. **3-Tier Architecture**:
+   - Highlight the clean separation between **React Frontend** $\leftrightarrow$ **Express Backend** $\leftrightarrow$ **Google Gemini AI**.
+2. **Context-Grounded AI**:
+   - Explain how prompt instructions prevent AI hallucinations by forcing Gemini to base answers solely on the provided study notes.
+3. **Structured JSON Schemas**:
+   - Demonstrate how `@google/genai` uses `responseSchema` to receive type-safe JSON objects for quiz questions and bulleted summaries.
+
+---
+
+## 👩‍💻 Author & Attribution
+
+- **Developed By**: [Dhruvi Patel](https://dhruvi-dev.vercel.app/)
+- **Portfolio**: [https://dhruvi-dev.vercel.app/](https://dhruvi-dev.vercel.app/)
+- **Academic Submission**: B.Tech Computer Engineering (3rd Year)
+
+---
+
+## 📄 License
+
+This project is open-source and created for academic submission purposes.  
+© 2026 SmartLearn GenAI by Dhruvi Patel. All rights reserved.
